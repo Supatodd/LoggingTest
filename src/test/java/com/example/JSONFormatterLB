@@ -10,15 +10,27 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.core.CoreConstants;
 import ch.qos.logback.core.LayoutBase;
+import ch.qos.logback.core.spi.PropertyDefiner;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.MappingJsonFactory;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
 
-public class JSONFormatterLB extends LayoutBase<ILoggingEvent>{
+public class JSONFormatterLB extends LayoutBase<ILoggingEvent> implements PropertyDefiner{
 	
 	private static final JsonFactory FACTORY = new MappingJsonFactory();
+	private String appName;
+	
+
+	public void setAppName(String appName) {
+		this.appName = appName;
+	}
+	
+	@Override
+	public String getPropertyValue() {
+		return null;
+	}
 
 	private ThreadLocal<DateFormat> formatter = new ThreadLocal<DateFormat>() {
 		protected DateFormat initialValue() {
@@ -26,10 +38,12 @@ public class JSONFormatterLB extends LayoutBase<ILoggingEvent>{
 		}
 	};
 	
+	@Override
 	public String doLayout(ILoggingEvent event) {
 		return format(event);
-}
+	}
 
+	
 	public String format(ILoggingEvent event) {
 		try {
 			return formatAsJson(event);
@@ -50,7 +64,11 @@ public class JSONFormatterLB extends LayoutBase<ILoggingEvent>{
 	
 	private StringWriter formatAsJson(StringWriter writer, ILoggingEvent event) throws IOException {
 		JsonGenerator json = FACTORY.createGenerator(writer);
+		
 		json.writeStartObject();
+		if (appName != null){
+			json.writeStringField("appName", appName);
+		}
 		json.writeStringField("name", event.getLoggerName());
 		json.writeNumberField("time", event.getTimeStamp());
 		
@@ -102,4 +120,7 @@ public class JSONFormatterLB extends LayoutBase<ILoggingEvent>{
 		
 		return writer;
 	}
+
+
+
 }
