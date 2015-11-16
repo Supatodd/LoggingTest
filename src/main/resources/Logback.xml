@@ -10,9 +10,11 @@
   
   
   <appender name="SYSLOG-TLS" class="com.papertrailapp.logback.Syslog4jAppender">
-    <layout class="ch.qos.logback.classic.PatternLayout">
-      <pattern>%-5level %logger{35}: %m%n%xEx</pattern>
-    </layout>
+    <encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+   		<layout class="com.example.JSONFormatterLB">
+   			<appName>LoggingTest</appName>
+  		</layout>
+  	</encoder>
 
     <syslogConfig class="org.productivity.java.syslog4j.impl.net.tcp.ssl.SSLTCPNetSyslogConfig">
       remote system to log to
